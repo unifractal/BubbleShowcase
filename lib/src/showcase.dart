@@ -13,8 +13,8 @@ class BubbleShowcase extends StatefulWidget {
   /// This showcase version.
   final int bubbleShowcaseVersion;
 
-  /// Whether this showcase should reopen once closed.
-  final bool doNotReopenOnClose;
+  /// Whether this showcase should only show once.
+  final bool showOnceOnly;
 
   /// All slides.
   final List<BubbleSlide> bubbleSlides;
@@ -31,24 +31,22 @@ class BubbleShowcase extends StatefulWidget {
   /// Duration by which delay showcase initialization.
   final Duration initialDelay;
 
-  /// Wether this showcase should be presented.
-  final bool enabled;
-
+  /// Hook that is called when entire showcase is completed
   final Function? onCompleted;
 
+  /// Whether the showcase should autostart. If true, it should auto-start after <initialDelay>
   final bool autoStart;
 
   /// Creates a new bubble showcase instance.
   BubbleShowcase({
     required this.bubbleShowcaseId,
     required this.bubbleShowcaseVersion,
-    this.doNotReopenOnClose = false,
+    this.showOnceOnly = false,
     required this.bubbleSlides,
     required this.child,
     this.counterText = ':i/:n',
     this.showCloseButton = true,
     this.initialDelay = Duration.zero,
-    this.enabled = true,
     this.onCompleted,
     this.autoStart = true,
     super.key,
@@ -58,17 +56,28 @@ class BubbleShowcase extends StatefulWidget {
   State<StatefulWidget> createState() => BubbleShowcaseState();
 
   /// Whether this showcase should be opened.
-  Future<bool> get shouldOpenShowcase async {
-    if (!enabled) {
+  Future<bool> get shouldStartShowcase async {
+    if (!autoStart) {
       return false;
     }
-    if (!doNotReopenOnClose) {
-      return true;
+    if (showOnceOnly) {
+      if (await hasShownVersion(bubbleShowcaseId, bubbleShowcaseVersion)) {
+        return false;
+      }
     }
+
+    return true;
+  }
+
+  Future<bool> hasShownVersion(String id, int version) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    bool? result =
-        preferences.getBool('$bubbleShowcaseId.$bubbleShowcaseVersion');
-    return result == null || result;
+    bool? result = preferences.getBool('$id.$version');
+    return result != null && result;
+  }
+
+  Future setVersionShown(String id, int version) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setBool('$id.$version', true);
   }
 }
 
@@ -92,12 +101,10 @@ class BubbleShowcaseState extends State<BubbleShowcase>
     _init();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (await widget.shouldOpenShowcase) {
+      if (await widget.shouldStartShowcase) {
         await Future.delayed(widget.initialDelay);
         if (mounted) {
-          if (widget.autoStart) {
-            goToNextEntryOrClose(0);
-          }
+          goToNextEntryOrClose(0);
         }
       }
     });
@@ -168,12 +175,10 @@ class BubbleShowcaseState extends State<BubbleShowcase>
 
     if (isFinished) {
       currentSlideEntry = null;
-      if (widget.doNotReopenOnClose) {
-        SharedPreferences.getInstance().then(
-          (preferences) => preferences.setBool(
-            '${widget.bubbleShowcaseId}.${widget.bubbleShowcaseVersion}',
-            false,
-          ),
+      if (widget.showOnceOnly) {
+        widget.setVersionShown(
+          widget.bubbleShowcaseId,
+          widget.bubbleShowcaseVersion,
         );
       }
       currentSlideIndex = -1;

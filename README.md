@@ -87,8 +87,8 @@ This will display the speech bubble on the top left corner of your app.
 The showcase is where everything begins. Let's see the available options :
 
 * `bubbleShowcaseId` The showcase identifier. Must be unique across the app as it is used as a saving mean; for instance when the showcase should not be reopened (**required**).
-* `bubbleShowcaseVersion` The showcase version. Increase it when you update the showcase, this allows to redisplay the it to the user if `doNotReopenOnClose` is set to `true` (**required**).
-* `doNotReopenOnClose` Whether this showcase should be reopened once closed.
+* `bubbleShowcaseVersion` The showcase version. Increase it when you update the showcase, this allows to redisplay the it to the user if `showOnce` is set to `true` (**required**).
+* `showOnce` Whether this showcase should be reopened once closed.
 * `bubbleSlides` The slides to display (**required** & **must not be empty**).
 * `child` The widget to display below the slides. It should be your app main widget.
 * `counterText` The current slide counter text. `:i` targets the current slide number and `:n` targets the maximum slide number.
