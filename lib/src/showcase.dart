@@ -34,6 +34,8 @@ class BubbleShowcase extends StatefulWidget {
   /// Wether this showcase should be presented.
   final bool enabled;
 
+  final Function? onCompleted;
+
   /// Creates a new bubble showcase instance.
   BubbleShowcase({
     required this.bubbleShowcaseId,
@@ -45,6 +47,7 @@ class BubbleShowcase extends StatefulWidget {
     this.showCloseButton = true,
     this.initialDelay = Duration.zero,
     this.enabled = true,
+    this.onCompleted,
   }) : assert(bubbleSlides.isNotEmpty);
 
   @override
@@ -139,6 +142,7 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
               false);
         });
       }
+      widget.onCompleted?.call();
     } else {
       currentSlideEntry = createCurrentSlideEntry();
       Overlay.of(context)?.insert(currentSlideEntry!);
