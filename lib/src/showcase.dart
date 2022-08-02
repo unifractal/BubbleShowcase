@@ -51,6 +51,7 @@ class BubbleShowcase extends StatefulWidget {
     this.enabled = true,
     this.onCompleted,
     this.autoStart = true,
+    super.key,
   }) : assert(bubbleSlides.isNotEmpty);
 
   @override
