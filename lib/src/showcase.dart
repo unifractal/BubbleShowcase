@@ -189,6 +189,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
   }
 
   bool checkSlideValid(int position) {
+    if (position >= bubbleSlides.length || position < 0) return false;
     if (bubbleSlides[position] is RelativeBubbleSlide) {
       RelativeBubbleSlide slide = bubbleSlides[position] as RelativeBubbleSlide;
       if (slide.widgetKey.currentContext == null) {
