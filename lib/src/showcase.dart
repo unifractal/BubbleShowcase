@@ -158,7 +158,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
 
   /// Returns whether the showcasing is finished.
   bool get isFinished =>
-      currentSlideIndex == -1 || currentSlideIndex == bubbleSlides.length;
+      currentSlideIndex == -1 || currentSlideIndex >= bubbleSlides.length;
 
   /// Allows to go to the next entry (or to close the showcase if needed).
   void goToNextEntryOrClose(int position) {
@@ -176,6 +176,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
           ),
         );
       }
+      currentSlideIndex = -1;
       widget.onCompleted?.call();
     } else {
       if (checkSlideValid(position)) {
