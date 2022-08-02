@@ -55,7 +55,7 @@ class BubbleShowcase extends StatefulWidget {
   }) : assert(bubbleSlides.isNotEmpty);
 
   @override
-  State<StatefulWidget> createState() => _BubbleShowcaseState();
+  State<StatefulWidget> createState() => BubbleShowcaseState();
 
   /// Whether this showcase should be opened.
   Future<bool> get shouldOpenShowcase async {
@@ -73,8 +73,10 @@ class BubbleShowcase extends StatefulWidget {
 }
 
 /// The BubbleShowcase state.
-class _BubbleShowcaseState extends State<BubbleShowcase>
+class BubbleShowcaseState extends State<BubbleShowcase>
     with WidgetsBindingObserver {
+  late List<BubbleSlide> bubbleSlides;
+
   /// The current slide index.
   int currentSlideIndex = -1;
 
@@ -83,6 +85,8 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
 
   @override
   void initState() {
+    bubbleSlides = widget.bubbleSlides;
+
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       if (await widget.shouldOpenShowcase) {
         await Future.delayed(widget.initialDelay);
@@ -122,8 +126,13 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
     });
   }
 
+  /// Starts showcase from the beginning
   void startShowcase() {
     goToNextEntryOrClose(0);
+  }
+
+  void appendSlide(BubbleSlide slide) {
+    bubbleSlides.add(slide);
   }
 
   bool processNotification(BubbleShowcaseNotification notif) {
@@ -134,8 +143,7 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
 
   /// Returns whether the showcasing is finished.
   bool get isFinished =>
-      currentSlideIndex == -1 ||
-      currentSlideIndex == widget.bubbleSlides.length;
+      currentSlideIndex == -1 || currentSlideIndex == bubbleSlides!.length;
 
   /// Allows to go to the next entry (or to close the showcase if needed).
   void goToNextEntryOrClose(int position) {
@@ -162,7 +170,7 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
 
   /// Creates the current slide entry.
   OverlayEntry createCurrentSlideEntry() => OverlayEntry(
-        builder: (context) => widget.bubbleSlides[currentSlideIndex].build(
+        builder: (context) => bubbleSlides[currentSlideIndex].build(
           context,
           widget,
           currentSlideIndex,
@@ -174,9 +182,8 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
 
   /// Allows to trigger enter callbacks.
   void triggerOnEnter() {
-    if (currentSlideIndex >= 0 &&
-        currentSlideIndex < widget.bubbleSlides.length) {
-      VoidCallback? callback = widget.bubbleSlides[currentSlideIndex].onEnter;
+    if (currentSlideIndex >= 0 && currentSlideIndex < bubbleSlides.length) {
+      VoidCallback? callback = bubbleSlides[currentSlideIndex].onEnter;
       if (callback != null) {
         callback();
       }
@@ -185,9 +192,8 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
 
   /// Allows to trigger exit callbacks.
   void triggerOnExit() {
-    if (currentSlideIndex >= 0 &&
-        currentSlideIndex < widget.bubbleSlides.length) {
-      VoidCallback? callback = widget.bubbleSlides[currentSlideIndex].onExit;
+    if (currentSlideIndex >= 0 && currentSlideIndex < bubbleSlides.length) {
+      VoidCallback? callback = bubbleSlides[currentSlideIndex].onExit;
       if (callback != null) {
         callback();
       }
