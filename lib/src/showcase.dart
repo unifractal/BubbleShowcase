@@ -83,9 +83,13 @@ class BubbleShowcaseState extends State<BubbleShowcase>
   /// The current slide entry.
   OverlayEntry? currentSlideEntry;
 
+  void _init() {
+    bubbleSlides = widget.bubbleSlides;
+  }
+
   @override
   void initState() {
-    bubbleSlides = widget.bubbleSlides;
+    _init();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (await widget.shouldOpenShowcase) {
@@ -100,6 +104,17 @@ class BubbleShowcaseState extends State<BubbleShowcase>
     WidgetsBinding.instance.addObserver(this);
 
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(Widget oldWidget) {
+    var oldShowcase = oldWidget as BubbleShowcase;
+
+    if (oldShowcase.bubbleSlides != widget.bubbleSlides) {
+      _init();
+    }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -118,7 +133,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
 
   @override
   void didChangeMetrics() {
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (currentSlideEntry != null) {
         currentSlideEntry!.remove();
         Overlay.of(context)?.insert(currentSlideEntry!);
@@ -143,7 +158,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
 
   /// Returns whether the showcasing is finished.
   bool get isFinished =>
-      currentSlideIndex == -1 || currentSlideIndex == bubbleSlides!.length;
+      currentSlideIndex == -1 || currentSlideIndex == bubbleSlides.length;
 
   /// Allows to go to the next entry (or to close the showcase if needed).
   void goToNextEntryOrClose(int position) {
@@ -154,11 +169,12 @@ class BubbleShowcaseState extends State<BubbleShowcase>
     if (isFinished) {
       currentSlideEntry = null;
       if (widget.doNotReopenOnClose) {
-        SharedPreferences.getInstance().then((preferences) {
-          preferences.setBool(
-              '${widget.bubbleShowcaseId}.${widget.bubbleShowcaseVersion}',
-              false);
-        });
+        SharedPreferences.getInstance().then(
+          (preferences) => preferences.setBool(
+            '${widget.bubbleShowcaseId}.${widget.bubbleShowcaseVersion}',
+            false,
+          ),
+        );
       }
       widget.onCompleted?.call();
     } else {
@@ -200,9 +216,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
   void triggerOnEnter() {
     if (currentSlideIndex >= 0 && currentSlideIndex < bubbleSlides.length) {
       VoidCallback? callback = bubbleSlides[currentSlideIndex].onEnter;
-      if (callback != null) {
-        callback();
-      }
+      callback?.call();
     }
   }
 
@@ -210,9 +224,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
   void triggerOnExit() {
     if (currentSlideIndex >= 0 && currentSlideIndex < bubbleSlides.length) {
       VoidCallback? callback = bubbleSlides[currentSlideIndex].onExit;
-      if (callback != null) {
-        callback();
-      }
+      callback?.call();
     }
   }
 }
