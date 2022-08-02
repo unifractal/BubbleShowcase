@@ -36,6 +36,8 @@ class BubbleShowcase extends StatefulWidget {
 
   final Function? onCompleted;
 
+  final bool autoStart;
+
   /// Creates a new bubble showcase instance.
   BubbleShowcase({
     required this.bubbleShowcaseId,
@@ -48,6 +50,7 @@ class BubbleShowcase extends StatefulWidget {
     this.initialDelay = Duration.zero,
     this.enabled = true,
     this.onCompleted,
+    this.autoStart = true,
   }) : assert(bubbleSlides.isNotEmpty);
 
   @override
@@ -83,7 +86,9 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
       if (await widget.shouldOpenShowcase) {
         await Future.delayed(widget.initialDelay);
         if (mounted) {
-          goToNextEntryOrClose(0);
+          if (widget.autoStart) {
+            goToNextEntryOrClose(0);
+          }
         }
       }
     });
@@ -114,6 +119,10 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
         Overlay.of(context)?.insert(currentSlideEntry!);
       }
     });
+  }
+
+  void startShowcase() {
+    goToNextEntryOrClose(0);
   }
 
   bool processNotification(BubbleShowcaseNotification notif) {
