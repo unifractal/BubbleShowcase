@@ -87,7 +87,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
   void initState() {
     bubbleSlides = widget.bubbleSlides;
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (await widget.shouldOpenShowcase) {
         await Future.delayed(widget.initialDelay);
         if (mounted) {
@@ -97,7 +97,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
         }
       }
     });
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     super.initState();
   }
@@ -112,7 +112,7 @@ class BubbleShowcaseState extends State<BubbleShowcase>
   @override
   void dispose() {
     currentSlideEntry?.remove();
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -162,18 +162,34 @@ class BubbleShowcaseState extends State<BubbleShowcase>
       }
       widget.onCompleted?.call();
     } else {
-      currentSlideEntry = createCurrentSlideEntry();
-      Overlay.of(context)?.insert(currentSlideEntry!);
-      triggerOnEnter();
+      if (checkSlideValid(position)) {
+        currentSlideEntry = createSlideEntry(position);
+        Overlay.of(context)?.insert(currentSlideEntry!);
+        triggerOnEnter();
+      } else {
+        goToNextEntryOrClose(position + 1);
+      }
     }
   }
 
+  bool checkSlideValid(int position) {
+    if (bubbleSlides[position] is RelativeBubbleSlide) {
+      RelativeBubbleSlide slide = bubbleSlides[position] as RelativeBubbleSlide;
+      if (slide.widgetKey.currentContext == null) {
+        debugPrint('Skipping slide, key is null');
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   /// Creates the current slide entry.
-  OverlayEntry createCurrentSlideEntry() => OverlayEntry(
-        builder: (context) => bubbleSlides[currentSlideIndex].build(
+  OverlayEntry createSlideEntry(int position) => OverlayEntry(
+        builder: (context) => bubbleSlides[position].build(
           context,
           widget,
-          currentSlideIndex,
+          position,
           (position) {
             setState(() => goToNextEntryOrClose(position));
           },
