@@ -175,12 +175,13 @@ class BubbleShowcaseState extends State<BubbleShowcase>
 
     if (isFinished) {
       currentSlideEntry = null;
-      if (widget.showOnceOnly) {
-        widget.setVersionShown(
-          widget.bubbleShowcaseId,
-          widget.bubbleShowcaseVersion,
-        );
-      }
+
+      //Mark this version as shown. if "showOnceOnly" is true, this will stop it from showing again
+      widget.setVersionShown(
+        widget.bubbleShowcaseId,
+        widget.bubbleShowcaseVersion,
+      );
+
       currentSlideIndex = -1;
       widget.onCompleted?.call();
     } else {
