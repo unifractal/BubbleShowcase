@@ -183,6 +183,8 @@ class RelativeBubbleSlide extends BubbleSlide {
     required BubbleSlideChild child,
     required this.widgetKey,
     this.highlightPadding = 0,
+    super.onEnter,
+    super.onExit,
   }) : super(
           shape: shape,
           boxShadow: boxShadow,
@@ -222,6 +224,8 @@ class AbsoluteBubbleSlide extends BubbleSlide {
       blurRadius: 0,
       spreadRadius: 0,
     ),
+    super.onEnter,
+    super.onExit,
     required BubbleSlideChild child,
     required this.positionCalculator,
   }) : super(
@@ -229,7 +233,6 @@ class AbsoluteBubbleSlide extends BubbleSlide {
           boxShadow: boxShadow,
           child: child,
         );
-
   @override
   Position getHighlightPosition(
     BuildContext context,
