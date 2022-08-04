@@ -169,9 +169,9 @@ class BubbleShowcaseState extends State<BubbleShowcase>
 
   /// Allows to go to the next entry (or to close the showcase if needed).
   void goToNextEntryOrClose(int position) {
+    triggerOnExit();
     currentSlideIndex = position;
     currentSlideEntry?.remove();
-    triggerOnExit();
 
     if (isFinished) {
       currentSlideEntry = null;
