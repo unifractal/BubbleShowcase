@@ -153,6 +153,18 @@ class BubbleShowcaseState extends State<BubbleShowcase>
     goToNextEntryOrClose(0);
   }
 
+  void startShowcaseIfNotShown() async {
+    if (widget.showOnceOnly) {
+      if (await widget.hasShownVersion(
+        widget.bubbleShowcaseId,
+        widget.bubbleShowcaseVersion,
+      )) {
+        return;
+      }
+    }
+    goToNextEntryOrClose(0);
+  }
+
   void appendSlide(BubbleSlide slide) {
     bubbleSlides.add(slide);
   }
